@@ -655,8 +655,8 @@
             <h3>You're booked!</h3>
             <p>We've got you down — see you then.</p>
             <div class="confirm-detail" id="confirmDetail"></div>
-            <button type="button" class="btn-primary" id="textSalonBtn" style="width:100%; margin-bottom:10px;">Text This to the Salon</button>
-            <p class="form-hint" id="textSalonMsg">We just tried opening a text to the salon for you — tap the button above if it didn't pop up.</p>
+            <button type="button" class="btn-primary" id="textSalonBtn" style="width:100%; margin-bottom:10px;">Also Text the Salon</button>
+            <p class="form-hint" id="textSalonMsg">Emailing the salon your booking now…</p>
             <button class="link-btn" id="bookAnotherBtn">Book another appointment</button>
           </div>
         </div>
@@ -717,7 +717,7 @@
   var EMAILJS_PUBLIC_KEY = 'ZDa78WrJWgeSy-jmP';
   var EMAILJS_SERVICE_ID = 'Preet';
   var EMAILJS_TEMPLATE_ID = 'template_u3mievi';
-  var NOTIFY_EMAIL = '3235825517@txt.att.net'; // AT&T's email-to-SMS gateway for (323) 582-5517
+  var NOTIFY_EMAIL = 'bsinghsnipez@gmail.com'; // AT&T's txt.att.net gateway was permanently shut down June 2025 — notifying your Gmail instead
   var emailjsReady = false;
   try {
     if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY'){
@@ -896,16 +896,16 @@
     document.getElementById('clientFormWrap').style.display = 'none';
     document.getElementById('confirmWrap').style.display = 'block';
 
-    // Primary notification: text the salon via the AT&T email-to-SMS gateway.
+    // Primary notification: email the salon (lands as a push notification on their phone).
     var textMsg = document.getElementById('textSalonMsg');
     var sent = await sendTextNotification(record);
     if (sent){
-      textMsg.textContent = 'We\'ve texted the salon with your booking.';
+      textMsg.textContent = 'We\'ve emailed the salon your booking.';
     } else {
-      textMsg.textContent = 'We couldn\'t confirm the text sent — tap the button above as backup.';
+      textMsg.textContent = 'We couldn\'t confirm the email sent — tap the button above to text them as backup.';
     }
 
-    // Backup: also try opening a text draft from the client's own device.
+    // Backup: also let the client open a text draft from their own device.
     var smsUrl = buildSmsUrl(record);
     document.getElementById('textSalonBtn').onclick = function(){ window.location.href = smsUrl; };
   });
