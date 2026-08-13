@@ -366,6 +366,8 @@
   footer a{ color: var(--gold-light); text-decoration:none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -717,7 +719,7 @@
   var EMAILJS_PUBLIC_KEY = 'ZDa78WrJWgeSy-jmP';
   var EMAILJS_SERVICE_ID = 'Preet';
   var EMAILJS_TEMPLATE_ID = 'template_u3mievi';
-  var NOTIFY_EMAIL = 'bsinghsnipez@gmail.com'; // AT&T's txt.att.net gateway was permanently shut down June 2025 — notifying your Gmail instead
+  var NOTIFY_EMAIL = 'preetthreadingsalon.la@gmail.com';
   var emailjsReady = false;
   try {
     if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY'){
@@ -742,6 +744,68 @@
       console.error('EmailJS send error:', err);
       return false;
     });
+  }
+
+  // ---- shared booking database (Firebase Firestore) ----
+  // Fill these in after creating a free project at firebase.google.com — see setup notes.
+  var FIREBASE_CONFIG = {
+    apiKey: 'AIzaSyAw4OaOoXoilRo3BrILnlvGzFLKo0TVFWY',
+    authDomain: 'preet-threading.firebaseapp.com',
+    projectId: 'preet-threading'
+  };
+  var db = null;
+  try {
+    if (window.firebase && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'){
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+    }
+  } catch(fbErr){ console.error('Firebase init error:', fbErr); }
+
+  function docId(iso, hhmm){ return iso + '_' + hhmm; }
+
+  // Returns an object like { "10:00": true, "10:30": true } for booked times on a date.
+  async function getBookedTimesForDate(iso){
+    var booked = {};
+    if (!db) return booked;
+    try {
+      var snap = await db.collection('bookings').where('date', '==', iso).get();
+      snap.forEach(function(d){ booked[d.data().time] = true; });
+    } catch(err){ console.error('Firestore read error:', err); }
+    return booked;
+  }
+
+  // Tries to atomically claim a slot. Returns true if booked, false if already taken or unavailable.
+  async function claimSlot(iso, hhmm, record){
+    if (!db) return true; // no database configured yet — don't block booking, just can't prevent double-booking
+    var ref = db.collection('bookings').doc(docId(iso, hhmm));
+    try {
+      var result = await db.runTransaction(async function(tx){
+        var existing = await tx.get(ref);
+        if (existing.exists){ return false; }
+        tx.set(ref, record);
+        return true;
+      });
+      return result;
+    } catch(err){
+      console.error('Firestore write error:', err);
+      return true; // don't block the booking on a database error
+    }
+  }
+
+  async function getBookingsForDate(iso){
+    var out = [];
+    if (!db) return out;
+    try {
+      var snap = await db.collection('bookings').where('date', '==', iso).get();
+      snap.forEach(function(d){ out.push({ id: d.id, data: d.data() }); });
+      out.sort(function(a,b){ return a.data.time < b.data.time ? -1 : 1; });
+    } catch(err){ console.error('Firestore read error:', err); }
+    return out;
+  }
+
+  async function cancelBooking(id){
+    if (!db) return;
+    await db.collection('bookings').doc(id).delete();
   }
 
   var todayISO = new Date().toISOString().slice(0,10);
@@ -790,14 +854,7 @@
     slotStatus.textContent = 'Checking availability…';
 
     var all = slotsForDate(iso);
-    var booked = {};
-    try {
-      var listResult = await window.storage.list('booking:'+iso+':', true);
-      var keys = (listResult && listResult.keys) ? listResult.keys : [];
-      keys.forEach(function(k){ booked[k.split(':')[2]] = true; });
-    } catch(err){
-      console.error('Storage list error:', err);
-    }
+    var booked = await getBookedTimesForDate(iso);
 
     var openCount = 0;
     all.forEach(function(hhmm){
@@ -862,30 +919,19 @@
     submitBtn.textContent = 'Booking…';
 
     var iso = dateInput.value;
-    var key = 'booking:' + iso + ':' + selectedSlot;
     var name = document.getElementById('bf-name').value.trim();
     var phone = document.getElementById('bf-phone').value.trim();
     var service = document.getElementById('bf-service').value;
     var notes = document.getElementById('bf-notes').value.trim();
     var record = { name: name, phone: phone, service: service, notes: notes, date: iso, time: selectedSlot, createdAt: new Date().toISOString() };
 
-    // Best-effort: use storage if this page happens to be running where it's available.
-    // This never blocks the booking — if it's unavailable (e.g. on a regular published site),
-    // we skip straight to the notification below.
-    if (window.storage && typeof window.storage.get === 'function'){
-      try {
-        var existing = await window.storage.get(key, true);
-        if (existing && existing.value){
-          alert('Sorry — that time was just taken. Please pick another.');
-          await loadSlots();
-          submitBtn.textContent = 'Confirm Appointment';
-          updateSubmitState();
-          return;
-        }
-        await window.storage.set(key, JSON.stringify(record), true);
-      } catch(storageErr){
-        console.error('Storage unavailable, continuing without it:', storageErr);
-      }
+    var claimed = await claimSlot(iso, selectedSlot, record);
+    if (!claimed){
+      alert('Sorry — that time was just taken. Please pick another.');
+      await loadSlots();
+      submitBtn.textContent = 'Confirm Appointment';
+      updateSubmitState();
+      return;
     }
 
     document.getElementById('confirmDetail').innerHTML =
@@ -968,18 +1014,14 @@
   async function renderAdminDay(iso){
     var el = document.getElementById('admin-day-' + iso);
     try {
-      var listResult = await window.storage.list('booking:'+iso+':', true);
-      var keys = (listResult && listResult.keys) ? listResult.keys : [];
-      if (!keys.length){ el.innerHTML = '<p class="admin-empty">No appointments.</p>'; return; }
+      var bookings = await getBookingsForDate(iso);
+      if (!bookings.length){ el.innerHTML = '<p class="admin-empty">No appointments.</p>'; return; }
 
-      keys.sort();
       var rowsHtml = '';
-      for (var i = 0; i < keys.length; i++){
-        var key = keys[i];
-        var got = await window.storage.get(key, true);
-        if (!got || !got.value) continue;
-        var rec = JSON.parse(got.value);
-        rowsHtml += '<div class="admin-row" data-key="' + key + '">' +
+      for (var i = 0; i < bookings.length; i++){
+        var id = bookings[i].id;
+        var rec = bookings[i].data;
+        rowsHtml += '<div class="admin-row" data-id="' + id + '">' +
           '<div><div class="who">' + fmtTime(rec.time) + ' — ' + rec.name + '</div>' +
           '<div class="meta">' + rec.service + ' · ' + rec.phone + (rec.notes ? ' · "' + rec.notes.replace(/</g,'') + '"' : '') + '</div></div>' +
           '<button type="button" class="cancel-btn">Cancel</button>' +
@@ -990,13 +1032,10 @@
       el.querySelectorAll('.cancel-btn').forEach(function(btn){
         btn.addEventListener('click', async function(){
           var row = btn.closest('.admin-row');
-          var key = row.dataset.key;
+          var id = row.dataset.id;
           if (!confirm('Cancel this appointment?')) return;
           try {
-            var current = await window.storage.get(key, true);
-            if (current){
-              await window.storage.delete(key, true);
-            }
+            await cancelBooking(id);
             row.remove();
           } catch(err){
             console.error('Cancel error:', err);
