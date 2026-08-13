@@ -74,7 +74,8 @@
   }
   .nav{
     display:flex; align-items:center; justify-content: space-between;
-    padding: 8px 28px; min-height: 128px; max-width: var(--max); margin:0 auto;
+    padding: 8px 28px; min-height: 104px; max-width: var(--max); margin:0 auto;
+    flex-wrap: wrap; gap: 16px;
   }
   .brand{
     font-family:'Fraunces', serif; font-weight:700; font-size: 1.25rem;
@@ -82,34 +83,51 @@
     display:flex; align-items:center; gap:10px;
   }
   .brand svg{ width:26px; height:26px; }
-  .brand img{ height:118px; width:auto; max-width:260px; border-radius:6px; display:block; }
+  .brand img{ height:88px; width:auto; max-width:200px; border-radius:6px; display:block; }
   footer .brand img{ height:78px; width:auto; max-width:180px; border-radius:5px; }
-  nav ul{ list-style:none; display:flex; gap:28px; margin:0; padding:0; }
-  nav ul a{
-    text-decoration:none; font-weight:600; font-size:0.92rem;
-    letter-spacing:0.02em; text-transform: uppercase; color: var(--maroon);
-    padding-bottom: 3px; border-bottom: 1px solid transparent;
+
+  .nav-right{ display:flex; align-items:center; gap:26px; flex-wrap:wrap; }
+  .nav-links{ list-style:none; display:flex; gap:24px; margin:0; padding:0; }
+  .nav-links a{
+    text-decoration:none; font-weight:700; font-size:0.82rem;
+    letter-spacing:0.06em; text-transform: uppercase; color: var(--maroon-deep);
+    padding-bottom: 4px; border-bottom: 2px solid transparent;
     transition: border-color 0.2s, color 0.2s;
   }
-  nav ul a:hover, nav ul a:focus-visible{ border-color: var(--pink); color: var(--maroon-deep); }
+  .nav-links a:hover, .nav-links a:focus-visible{ border-color: var(--pink); }
+
+  .nav-socials{ display:flex; align-items:center; gap:14px; }
+  .nav-socials a{ color: var(--maroon-deep); display:flex; transition: color 0.2s; }
+  .nav-socials a:hover, .nav-socials a:focus-visible{ color: var(--pink); }
+  .nav-socials svg{ width:18px; height:18px; }
+
   .call-btn{
     background: var(--maroon-deep); color: var(--ivory); text-decoration:none;
-    font-weight:600; font-size:0.85rem; letter-spacing:0.02em; text-transform:uppercase;
-    padding: 10px 18px; border-radius: 2px; transition: background 0.2s;
+    font-weight:700; font-size:0.8rem; letter-spacing:0.04em; text-transform:uppercase;
+    padding: 12px 20px; border-radius: 999px; transition: background 0.2s;
+    display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
   }
   .call-btn:hover, .call-btn:focus-visible{ background: var(--maroon); }
+
+  .nav-phone{
+    display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+    color: var(--maroon-deep); font-weight:700; font-size:0.88rem; white-space:nowrap;
+  }
+  .nav-phone:hover, .nav-phone:focus-visible{ color: var(--pink); }
+
   .menu-toggle{ display:none; }
 
-  @media (max-width: 760px){
-    nav ul{ display:none; }
+  @media (max-width: 900px){
+    .nav-right{ display:none; }
     .menu-toggle{
       display:block; background:none; border:none; font-size:1.6rem;
       color: var(--maroon-deep); cursor:pointer; line-height:1;
     }
-    nav ul.open{
-      display:flex; flex-direction:column; position:absolute; top:64px; left:0; right:0;
-      background: var(--ivory); padding: 20px 28px; gap:16px; border-bottom:1px solid var(--line);
+    .nav-right.open{
+      display:flex; flex-direction:column; align-items:flex-start; position:absolute; top:104px; left:0; right:0;
+      background: var(--ivory); padding: 20px 28px 26px; gap:18px; border-bottom:1px solid var(--line);
     }
+    .nav-right.open .nav-links{ flex-direction:column; gap:14px; }
   }
 
   /* ---------- hero ---------- */
@@ -261,6 +279,31 @@
   }
   .map-frame iframe{ width:100%; height:100%; min-height:340px; border:0; display:block; }
 
+  /* ---------- faq ---------- */
+  .faq{ background: linear-gradient(180deg, #DCEEBB 0%, #C4E28A 100%); }
+  .faq-list{ max-width: 760px; }
+  .faq-item{
+    background: #fff; border: 1px solid var(--line); border-radius: 3px;
+    margin-bottom: 12px; overflow:hidden;
+  }
+  .faq-item summary{
+    padding: 18px 22px; cursor:pointer; font-family:'Fraunces', serif; font-weight:600;
+    color: var(--maroon-deep); font-size:1.02rem; list-style:none;
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{
+    content:'+'; font-family:'Karla',sans-serif; font-size:1.4rem; color: var(--pink);
+    flex-shrink:0; transition: transform 0.2s;
+  }
+  .faq-item[open] summary::after{ transform: rotate(45deg); }
+  .faq-item p{ padding: 0 22px 20px; margin:0; color:#4E5A48; font-size:0.96rem; }
+
+  /* ---------- contact form ---------- */
+  .contact{ background: var(--blush); }
+  .contact-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items:flex-start; }
+  @media (max-width: 780px){ .contact-grid{ grid-template-columns: 1fr; gap: 36px; } }
+
   /* ---------- booking ---------- */
   .book{ background: var(--blush); }
   .book-tabs{ display:flex; gap:0; margin-bottom: 28px; border-bottom: 1px solid rgba(27,59,29,0.2); }
@@ -375,13 +418,32 @@
   <div class="nav">
     <a href="#" class="brand"><img src="assets/business-card.png" alt="Preet Threading Salon"></a>
     <button class="menu-toggle" aria-label="Toggle menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
-    <ul id="navlinks">
-      <li><a href="#services">Services</a></li>
-      <li><a href="#loyalty">Rewards</a></li>
-      <li><a href="#reviews">Reviews</a></li>
-      <li><a href="#visit">Visit</a></li>
-      <li><a href="#book" class="call-btn" style="border-bottom:none;">Book Now</a></li>
-    </ul>
+    <div class="nav-right" id="navlinks">
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#loyalty">Rewards</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav-socials">
+        <a href="https://www.instagram.com/preet_threadingsalon/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+        </a>
+        <a href="https://www.facebook.com/p/Preet-Threading-Salon-100063763863742" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 4h-2a4 4 0 0 0-4 4v3H7v4h2v7h4v-7h3l1-4h-4V8a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+      </div>
+      <a href="#book" class="call-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px;"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Book Now
+      </a>
+      <a href="tel:+13235825517" class="nav-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px;"><path d="M4 4h4l2 6-3 2a12 12 0 0 0 6 6l2-3 6 2v4a2 2 0 0 1-2 2C10.5 23 1 13.5 1 4a2 2 0 0 1 2-2z"/></svg>
+        (323) 582-5517
+      </a>
+    </div>
   </div>
 </header>
 
@@ -564,6 +626,7 @@
           <ul class="contact-list">
             <li>📍 <a href="https://www.google.com/maps/place/?q=place_id:ChIJmy2x_0PJwoARzbjsk0ht2u8" target="_blank" rel="noopener">2663 Santa Ana St, South Gate, CA 90280</a></li>
             <li>📞 <a href="tel:+13235825517">(323) 582-5517</a></li>
+            <li>✉️ <a href="mailto:preetthreadingsalon.la@gmail.com">preetthreadingsalon.la@gmail.com</a></li>
             <li>📷 <a href="https://www.instagram.com/preet_threadingsalon/" target="_blank" rel="noopener">Instagram</a></li>
             <li>👍 <a href="https://www.facebook.com/p/Preet-Threading-Salon-100063763863742" target="_blank" rel="noopener">Facebook</a></li>
           </ul>
@@ -576,6 +639,100 @@
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade">
         </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow-label">Good to Know</span>
+      <h2>Frequently asked questions.</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>What's the difference between eyebrow threading and waxing?</summary>
+        <p>Threading uses a twisted cotton thread to lift and remove hair at the follicle, with no heat or chemicals touching your skin — it's precise and gentle, which is why it's a favorite for sensitive skin. Waxing removes hair over a broader area at once and can be a better fit for larger regions like the arms or legs.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How long does henna last?</summary>
+        <p>A fresh henna design typically stays vivid for about 1–3 weeks, gradually fading as skin naturally exfoliates. Keeping the area moisturized and avoiding excessive water exposure in the first 24–48 hours helps the color develop darkest and last longest.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What should I expect during a facial?</summary>
+        <p>Every facial starts with a cleanse, followed by exfoliation and a treatment mask suited to your skin's needs, finished with hydration. Sessions run about 45 minutes and are meant to be relaxing as much as effective — let us know about any sensitivities beforehand.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I prepare for a waxing appointment?</summary>
+        <p>Hair should be at least a quarter-inch long for the wax to grip properly. Skip lotions or oils on the area the day of your visit, and avoid sun exposure right before or after waxing to reduce irritation.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you offer lash extensions?</summary>
+        <p>Not currently — our lash service is tinting and lifts, which enhance your natural lashes without the upkeep extensions require. It's a lower-maintenance way to get definition that lasts several weeks.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How often should I book eyebrow threading?</summary>
+        <p>Most clients come back every 3–4 weeks, which keeps shape consistent as hair regrows. If your hair grows faster or slower than average, we can help you find the right rhythm.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you take walk-ins?</summary>
+        <p>Yes — walk-ins are always welcome during business hours. Booking ahead online just guarantees your specific time slot instead of waiting to see who's available.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow-label">Get In Touch</span>
+      <h2>Have a question? Send us a message.</h2>
+      <p>Prefer email over booking directly? Fill this out and we'll get back to you.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="book-side">
+        <h3>Other ways to reach us</h3>
+        <p>Prefer talking directly? We're happy to help.</p>
+        <ul class="contact-list">
+          <li>📞 <a href="tel:+13235825517">(323) 582-5517</a></li>
+          <li>✉️ <a href="mailto:preetthreadingsalon.la@gmail.com">preetthreadingsalon.la@gmail.com</a></li>
+          <li>📷 <a href="https://www.instagram.com/preet_threadingsalon/" target="_blank" rel="noopener">Instagram</a></li>
+          <li>👍 <a href="https://www.facebook.com/p/Preet-Threading-Salon-100063763863742" target="_blank" rel="noopener">Facebook</a></li>
+        </ul>
+      </div>
+      <div>
+        <div id="contactFormWrap">
+          <form class="book-form" id="contactForm">
+            <div class="form-row">
+              <div class="field">
+                <label for="cf-name">Name</label>
+                <input type="text" id="cf-name" required placeholder="Your name">
+              </div>
+              <div class="field">
+                <label for="cf-phone">Phone</label>
+                <input type="tel" id="cf-phone" placeholder="(___) ___-____">
+              </div>
+            </div>
+            <div class="field">
+              <label for="cf-email">Email</label>
+              <input type="email" id="cf-email" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="cf-message">Message</label>
+              <textarea id="cf-message" required placeholder="What can we help with?"></textarea>
+            </div>
+            <button type="submit" id="contactSubmitBtn">Send Message</button>
+            <p class="form-hint" id="contactFormMsg">We usually reply within a day.</p>
+          </form>
+        </div>
+        <div id="contactConfirmWrap" style="display:none;">
+          <div class="confirm-box">
+            <div class="check">✓</div>
+            <h3>Message sent!</h3>
+            <p>Thanks for reaching out — we'll get back to you soon.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -701,7 +858,7 @@
 <footer>
   <div class="wrap">
     <div class="brand"><img src="assets/business-card.png" alt="Preet Threading Salon"></div>
-    <div>2663 Santa Ana St, South Gate, CA 90280 · <a href="tel:+13235825517">(323) 582-5517</a></div>
+    <div>2663 Santa Ana St, South Gate, CA 90280 · <a href="tel:+13235825517">(323) 582-5517</a> · <a href="mailto:preetthreadingsalon.la@gmail.com">preetthreadingsalon.la@gmail.com</a></div>
   </div>
 </footer>
 
@@ -911,6 +1068,46 @@
     var body = encodeURIComponent(lines.join('\n'));
     return 'sms:' + PHONE + '?&body=' + body;
   }
+
+  document.getElementById('contactForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var btn = document.getElementById('contactSubmitBtn');
+    var msgEl = document.getElementById('contactFormMsg');
+    var name = document.getElementById('cf-name').value.trim();
+    var phone = document.getElementById('cf-phone').value.trim();
+    var email = document.getElementById('cf-email').value.trim();
+    var message = document.getElementById('cf-message').value.trim();
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    var fullMessage = message + (phone ? '\n\nPhone: ' + phone : '') + '\nEmail: ' + email;
+
+    if (!emailjsReady){
+      msgEl.textContent = 'Sorry, this form isn\'t available right now — please call or text us instead.';
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+      return;
+    }
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: NOTIFY_EMAIL,
+        title: 'New Contact Form Message',
+        name: name,
+        time: new Date().toLocaleString('en-US'),
+        message: fullMessage,
+        email: email
+      });
+      document.getElementById('contactFormWrap').style.display = 'none';
+      document.getElementById('contactConfirmWrap').style.display = 'block';
+    } catch(err){
+      console.error('Contact form send error:', err);
+      msgEl.textContent = 'Something went wrong — please try again, or call/text us directly.';
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+    }
+  });
 
   document.getElementById('bookingForm').addEventListener('submit', async function(e){
     e.preventDefault();
